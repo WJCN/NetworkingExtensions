@@ -25,7 +25,7 @@ extension URLRequest {
 		url:         URL,
 		bearerToken: String? = nil,
 		body:        Data?   = nil
-	) throws {
+	) {
 		self.init(url: url)
 		self.httpMethod = method.rawValue
 		if let bearerToken {
@@ -33,7 +33,7 @@ extension URLRequest {
 		}
 		if let body {
 			self.setValue("application/json", forHTTPHeaderField: "Content-Type")
-			self.httpBody = try JSONEncoder().encode(body)
+			self.httpBody = body
 		}
 	}
 }
