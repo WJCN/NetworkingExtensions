@@ -20,21 +20,21 @@ extension URLRequest {
 		case trace
 	}
 
-	public init(
+	public init<T: Encodable>(
 		method:      HTTPMethod,
 		url:         URL,
-		bearerToken: String? =  nil,
-		contentType: String  = "application/json",
-		body:        Data?   =  nil
-	) {
+		bearerToken: String?      = nil,
+		body:        T?           = nil,
+		encoder:     JSONEncoder? = nil
+	) throws {
 		self.init(url: url)
 		self.httpMethod = method.rawValue
 		if let bearerToken {
 			self.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
 		}
 		if let body {
-			self.setValue(contentType, forHTTPHeaderField: "Content-Type")
-			self.httpBody = body
+			self.setValue("application/json", forHTTPHeaderField: "Content-Type")
+			self.httpBody = try (encoder ?? JSONEncoder()).encode(body)
 		}
 	}
 }
