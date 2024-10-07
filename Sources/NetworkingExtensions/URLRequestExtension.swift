@@ -20,12 +20,11 @@ extension URLRequest {
 		case trace
 	}
 
-	public init<T: Encodable>(
+	public init(
 		method:      HTTPMethod,
 		url:         URL,
-		bearerToken: String?      = nil,
-		body:        T?           = nil,
-		encoder:     JSONEncoder? = nil
+		bearerToken: String? = nil,
+		body:        Data?   = nil
 	) throws {
 		self.init(url: url)
 		self.httpMethod = method.rawValue
@@ -34,7 +33,7 @@ extension URLRequest {
 		}
 		if let body {
 			self.setValue("application/json", forHTTPHeaderField: "Content-Type")
-			self.httpBody = try (encoder ?? JSONEncoder()).encode(body)
+			self.httpBody = try JSONEncoder().encode(body)
 		}
 	}
 }
