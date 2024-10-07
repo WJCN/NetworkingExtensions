@@ -6,8 +6,8 @@
 
 import Foundation
 
-public extension URLRequest {
-	enum Method: String {
+extension URLRequest {
+	public enum Method: String {
 		case connect
 		case delete
 		case head
@@ -19,7 +19,7 @@ public extension URLRequest {
 		case trace
 	}
 
-	init(
+	public init(
 		method httpMethod: Method,
 		url:               URL,
 		bearerToken:       String? =  nil,
@@ -41,8 +41,8 @@ public extension URLRequest {
 // MARK: -
 
 #if false
-public extension URLResponse {
-	func check() throws {
+extension URLResponse {
+	public func check() throws {
 		if let response = self as? HTTPURLResponse {
 			guard (200 ..< 300).contains(response.statusCode)
 			else { throw URLError(.badServerResponse) }
@@ -53,8 +53,8 @@ public extension URLResponse {
 
 // MARK: -
 
-public extension URLSession {
-	func receive<T: Decodable>(
+extension URLSession {
+	public func receive<T: Decodable>(
 		_    type: T.Type,
 		from url:  URL,
 		delegate:  URLSessionTaskDelegate? = nil
@@ -63,7 +63,7 @@ public extension URLSession {
 		return try (JSONDecoder().decode(T.self, from: data), response)
 	}
 
-	func receive<T: Decodable>(
+	public func receive<T: Decodable>(
 		_   type:    T.Type,
 		for request: URLRequest,
 		delegate:    URLSessionTaskDelegate? = nil
