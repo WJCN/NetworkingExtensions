@@ -8,7 +8,7 @@
 import Foundation
 
 extension URLRequest {
-	public enum Method: String {
+	public enum HTTPMethod: String {
 		case connect
 		case delete
 		case head
@@ -21,20 +21,20 @@ extension URLRequest {
 	}
 
 	public init(
-		method httpMethod: Method,
-		url:               URL,
-		bearerToken:       String? =  nil,
-		contentType:       String  = "application/json",
-		httpBody:          Data?   =  nil
+		method:      HTTPMethod,
+		url:         URL,
+		bearerToken: String? =  nil,
+		contentType: String  = "application/json",
+		body:        Data?   =  nil
 	) {
 		self.init(url: url)
-		self.httpMethod = httpMethod.rawValue
+		self.httpMethod = method.rawValue
 		if let bearerToken {
 			self.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
 		}
-		if let httpBody {
-			self.httpBody = httpBody
+		if let body {
 			self.setValue(contentType, forHTTPHeaderField: "Content-Type")
+			self.httpBody = body
 		}
 	}
 }
