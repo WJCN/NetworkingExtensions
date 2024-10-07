@@ -9,7 +9,10 @@ import Foundation
 
 extension JSONDecoder {
 	@inlinable
-	public func decode<T: Decodable>(_ type: T.Type, from request: URLRequest) async throws -> (T, URLResponse) {
+	public func decode<T: Decodable>(
+		_    type:    T.Type,
+		from request: URLRequest
+	) async throws -> (result: T, response: URLResponse) {
 		let (data, response) = try await URLSession.shared.data(for: request)
 		return try (decode(T.self, from: data), response)
 	}
