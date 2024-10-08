@@ -11,9 +11,10 @@ extension JSONDecoder {
 	@inlinable
 	public func decode<T: Decodable>(
 		_    type:    T.Type,
-		from request: URLRequest
+		from request: URLRequest,
+		session:      URLSession = .shared
 	) async throws -> (result: T, response: URLResponse) {
-		let (data, response) = try await URLSession.shared.data(for: request)
+		let (data, response) = try await session.data(for: request)
 		return try (decode(T.self, from: data), response)
 	}
 }
