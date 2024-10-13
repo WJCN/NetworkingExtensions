@@ -16,8 +16,9 @@ let package = Package(
 	products: [
 		// Products define the executables and libraries a package produces, making them visible to other packages.
 		.library(
-			name: "NetworkingExtensions",
-			targets: ["NetworkingExtensions"]),
+			name:     "NetworkingExtensions",
+			targets: ["NetworkingExtensions"]
+		),
 	],
 	targets: [
 		// Targets are the basic building blocks of a package, defining a module or a test suite.
