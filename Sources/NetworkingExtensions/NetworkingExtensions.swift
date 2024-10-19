@@ -7,16 +7,15 @@
 
 import Foundation
 
-extension JSONDecoder {
-	@inlinable
-	public func decode<T: Decodable>(
-		_     type:    T.Type,
-		from  request: URLRequest,
-		using session: URLSession = .shared
-	) async throws -> (result: T, response: URLResponse) {
-		let (data, response) = try await session.data(for: request)
-		return try (decode(T.self, from: data), response)
-	}
+public struct HTTPErrorResponse: Decodable {
+	public let error:  Bool
+	public let reason: String
+}
+
+// MARK: -
+
+extension HTTPURLResponse {
+	public var isSuccess: Bool { 200 ..< 300 ~= statusCode }
 }
 
 // MARK: -
@@ -49,5 +48,23 @@ extension URLRequest {
 			self.setValue("application/json", forHTTPHeaderField: "Content-Type")
 			self.httpBody = body
 		}
+	}
+}
+
+// MARK: -
+
+extension URLSession {
+	public func httpData(from url: URL) async throws -> (Data, HTTPURLResponse) {
+		let (data, urlResponse) = try await data(from: url)
+		guard let httpURLResponse = urlResponse as? HTTPURLResponse
+		else { throw URLError(.badServerResponse) }
+		return (data, httpURLResponse)
+	}
+
+	public func httpData(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+		let (data, urlResponse) = try await data(for: request)
+		guard let httpURLResponse = urlResponse as? HTTPURLResponse
+		else { throw URLError(.badServerResponse) }
+		return (data, httpURLResponse)
 	}
 }
