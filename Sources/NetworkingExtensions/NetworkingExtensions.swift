@@ -7,10 +7,12 @@
 
 import Foundation
 
+#if false
 public struct HTTPErrorResponse: Decodable {
 	public let error:  Bool
 	public let reason: String
 }
+#endif
 
 // MARK: -
 
