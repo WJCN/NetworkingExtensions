@@ -7,15 +7,6 @@
 
 import Foundation
 
-#if false
-public struct HTTPErrorResponse: Decodable {
-	public let error:  Bool
-	public let reason: String
-}
-#endif
-
-// MARK: -
-
 extension HTTPURLResponse {
 	public var isSuccess: Bool { 200 ..< 300 ~= statusCode }
 }
