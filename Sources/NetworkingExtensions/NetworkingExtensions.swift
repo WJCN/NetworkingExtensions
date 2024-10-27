@@ -38,7 +38,8 @@ extension URLRequest {
 			self.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
 		}
 		if let body {
-			self.setValue("application/json", forHTTPHeaderField: "Content-Type")
+			self.setValue(String(body.count), forHTTPHeaderField: "Content-Length")
+			self.setValue("Application/JSON", forHTTPHeaderField: "Content-Type")
 			self.httpBody = body
 		}
 	}
