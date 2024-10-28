@@ -26,6 +26,7 @@ extension URLRequest {
 		case trace
 	}
 
+#if URL_REQUEST_EXTENSION_USES_DATA_ENCODING
 	public init(
 		method:          HTTPMethod,
 		header:         [String: String] = [:],
@@ -47,7 +48,6 @@ extension URLRequest {
 		}
 	}
 
-#if !URL_EXTENSION_JSON_ENCODING
 	public init(
 		method:          HTTPMethod,
 		bearerToken:     String?      =  nil,
@@ -81,19 +81,17 @@ extension URLRequest {
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
 	) throws {
-		var data: Data?
-		if let body {
-			data = try encoder.encode(body)
+		self.init(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
+		httpMethod = method.rawValue
+		for (field, value) in header {
+			setValue(value, forHTTPHeaderField: field)
 		}
-		self.init(
-			method:          method,
-			header:          header,
-			url:             url,
-			body:            data,
-			contentType:     data != nil ? "Application/JSON" : nil,
-			cachePolicy:     cachePolicy,
-			timeoutInterval: timeoutInterval
-		)
+		if let body {
+			let data = try encoder.encode(body)
+			setValue(String(data.count), forHTTPHeaderField: "Content-Length")
+			setValue("Application/JSON", forHTTPHeaderField: "Content-Type")
+			httpBody = data
+		}
 	}
 
 	public init(
@@ -105,16 +103,16 @@ extension URLRequest {
 		cachePolicy:     CachePolicy  = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval =  60
 	) throws {
-		var data: Data?
-		if let body {
-			data = try encoder.encode(body)
+		var header: [String: String] = [:]
+		if let bearerToken {
+			header.updateValue("Bearer \(bearerToken)", forKey: "Authorization")
 		}
-		self.init(
+		try self.init(
 			method:          method,
-			bearerToken:     bearerToken,
+			header:          header,
 			url:             url,
-			body:            data,
-			contentType:     data != nil ? "Application/JSON" : nil,
+			body:            body != nil ? encoder.encode(body!) : nil,
+			encoder:         encoder,
 			cachePolicy:     cachePolicy,
 			timeoutInterval: timeoutInterval
 		)
