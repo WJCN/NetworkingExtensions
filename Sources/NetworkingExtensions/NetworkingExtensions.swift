@@ -28,36 +28,57 @@ extension URLRequest {
 
 	public init(
 		method:          HTTPMethod,
+		header:         [String: String] = [:],
 		url:             URL,
-		bearerToken:     String?      = nil,
-		body:            Data?        = nil,
-		cachePolicy:     CachePolicy  = .useProtocolCachePolicy,
-		timeoutInterval: TimeInterval = 60
+		body:            Data?           =  nil,
+		contentType:     String?         =  nil,
+		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
+		timeoutInterval: TimeInterval    =  60
 	) {
-		self.init(
-			url:             url,
-			cachePolicy:     cachePolicy,
-			timeoutInterval: timeoutInterval
-		)
-		self.httpMethod = method.rawValue
-		if let bearerToken {
-			self.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+		self.init(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
+		httpMethod = method.rawValue
+		for (field, value) in header {
+			setValue(value, forHTTPHeaderField: field)
 		}
-		if let body {
-			self.setValue(String(body.count), forHTTPHeaderField: "Content-Length")
-			self.setValue("Application/JSON", forHTTPHeaderField: "Content-Type")
-			self.httpBody = body
+		if let body, let contentType {
+			setValue(String(body.count), forHTTPHeaderField: "Content-Length")
+			setValue(contentType,        forHTTPHeaderField: "Content-Type")
+			httpBody = body
 		}
 	}
 
 	public init(
 		method:          HTTPMethod,
+		bearerToken:     String?      =  nil,
 		url:             URL,
-		bearerToken:     String?      = nil,
-		body:            Encodable?   = nil,
-		encoder:         JSONEncoder  = JSONEncoder(),
+		body:            Data?        =  nil,
+		contentType:     String?      =  nil,
 		cachePolicy:     CachePolicy  = .useProtocolCachePolicy,
-		timeoutInterval: TimeInterval = 60
+		timeoutInterval: TimeInterval =  60
+	) {
+		var header: [String: String] = [:]
+		if let bearerToken {
+			header.updateValue("Bearer \(bearerToken)", forKey: "Authorization")
+		}
+		self.init(
+			method:          method,
+			header:          header,
+			url:             url,
+			body:            body,
+			contentType:     contentType,
+			cachePolicy:     cachePolicy,
+			timeoutInterval: timeoutInterval
+		)
+	}
+
+	public init(
+		method:          HTTPMethod,
+		header:         [String: String] = [:],
+		url:             URL,
+		body:            Encodable?      =  nil,
+		encoder:         JSONEncoder     =  JSONEncoder(),
+		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
+		timeoutInterval: TimeInterval    =  60
 	) throws {
 		var data: Data?
 		if let body {
@@ -65,9 +86,34 @@ extension URLRequest {
 		}
 		self.init(
 			method:          method,
+			header:          header,
 			url:             url,
-			bearerToken:     bearerToken,
 			body:            data,
+			contentType:     data != nil ? "Application/JSON" : nil,
+			cachePolicy:     cachePolicy,
+			timeoutInterval: timeoutInterval
+		)
+	}
+
+	public init(
+		method:          HTTPMethod,
+		bearerToken:     String?      =  nil,
+		url:             URL,
+		body:            Encodable?   =  nil,
+		encoder:         JSONEncoder  =  JSONEncoder(),
+		cachePolicy:     CachePolicy  = .useProtocolCachePolicy,
+		timeoutInterval: TimeInterval =  60
+	) throws {
+		var data: Data?
+		if let body {
+			data = try encoder.encode(body)
+		}
+		self.init(
+			method:          method,
+			bearerToken:     bearerToken,
+			url:             url,
+			body:            data,
+			contentType:     data != nil ? "Application/JSON" : nil,
 			cachePolicy:     cachePolicy,
 			timeoutInterval: timeoutInterval
 		)
