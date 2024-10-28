@@ -26,52 +26,7 @@ extension URLRequest {
 		case trace
 	}
 
-#if URL_REQUEST_EXTENSION_USES_DATA_ENCODING
-	public init(
-		method:          HTTPMethod,
-		header:         [String: String] = [:],
-		url:             URL,
-		body:            Data?           =  nil,
-		contentType:     String?         =  nil,
-		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
-		timeoutInterval: TimeInterval    =  60
-	) {
-		self.init(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
-		httpMethod = method.rawValue
-		for (field, value) in header {
-			setValue(value, forHTTPHeaderField: field)
-		}
-		if let body, let contentType {
-			setValue(String(body.count), forHTTPHeaderField: "Content-Length")
-			setValue(contentType,        forHTTPHeaderField: "Content-Type")
-			httpBody = body
-		}
-	}
-
-	public init(
-		method:          HTTPMethod,
-		bearerToken:     String?      =  nil,
-		url:             URL,
-		body:            Data?        =  nil,
-		contentType:     String?      =  nil,
-		cachePolicy:     CachePolicy  = .useProtocolCachePolicy,
-		timeoutInterval: TimeInterval =  60
-	) {
-		var header: [String: String] = [:]
-		if let bearerToken {
-			header.updateValue("Bearer \(bearerToken)", forKey: "Authorization")
-		}
-		self.init(
-			method:          method,
-			header:          header,
-			url:             url,
-			body:            body,
-			contentType:     contentType,
-			cachePolicy:     cachePolicy,
-			timeoutInterval: timeoutInterval
-		)
-	}
-#else
+#if true
 	public init(
 		method:          HTTPMethod,
 		header:         [String: String] = [:],
@@ -113,6 +68,51 @@ extension URLRequest {
 			url:             url,
 			body:            body != nil ? encoder.encode(body!) : nil,
 			encoder:         encoder,
+			cachePolicy:     cachePolicy,
+			timeoutInterval: timeoutInterval
+		)
+	}
+#else
+	public init(
+		method:          HTTPMethod,
+		header:         [String: String] = [:],
+		url:             URL,
+		body:            Data?           =  nil,
+		contentType:     String?         =  nil,
+		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
+		timeoutInterval: TimeInterval    =  60
+	) {
+		self.init(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
+		httpMethod = method.rawValue
+		for (field, value) in header {
+			setValue(value, forHTTPHeaderField: field)
+		}
+		if let body, let contentType {
+			setValue(String(body.count), forHTTPHeaderField: "Content-Length")
+			setValue(contentType,        forHTTPHeaderField: "Content-Type")
+			httpBody = body
+		}
+	}
+
+	public init(
+		method:          HTTPMethod,
+		bearerToken:     String?      =  nil,
+		url:             URL,
+		body:            Data?        =  nil,
+		contentType:     String?      =  nil,
+		cachePolicy:     CachePolicy  = .useProtocolCachePolicy,
+		timeoutInterval: TimeInterval =  60
+	) {
+		var header: [String: String] = [:]
+		if let bearerToken {
+			header.updateValue("Bearer \(bearerToken)", forKey: "Authorization")
+		}
+		self.init(
+			method:          method,
+			header:          header,
+			url:             url,
+			body:            body,
+			contentType:     contentType,
 			cachePolicy:     cachePolicy,
 			timeoutInterval: timeoutInterval
 		)
