@@ -47,6 +47,7 @@ extension URLRequest {
 		}
 	}
 
+#if !URL_EXTENSION_JSON_ENCODING
 	public init(
 		method:          HTTPMethod,
 		bearerToken:     String?      =  nil,
@@ -70,7 +71,7 @@ extension URLRequest {
 			timeoutInterval: timeoutInterval
 		)
 	}
-
+#else
 	public init(
 		method:          HTTPMethod,
 		header:         [String: String] = [:],
@@ -118,6 +119,7 @@ extension URLRequest {
 			timeoutInterval: timeoutInterval
 		)
 	}
+#endif
 }
 
 // MARK: -
