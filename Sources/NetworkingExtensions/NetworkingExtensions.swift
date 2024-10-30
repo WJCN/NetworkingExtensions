@@ -31,7 +31,7 @@ extension URLRequest {
 		method:          HTTPMethod,
 		header:         [String: String] = [:],
 		url:             URL,
-		body:            Encodable?      =  nil,
+		body:            Data?           =  nil,
 		encoder:         JSONEncoder     =  JSONEncoder(),
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
@@ -42,10 +42,9 @@ extension URLRequest {
 			setValue(value, forHTTPHeaderField: field)
 		}
 		if let body {
-			let data = try encoder.encode(body)
-			setValue(String(data.count), forHTTPHeaderField: "Content-Length")
+			setValue(String(body.count), forHTTPHeaderField: "Content-Length")
 			setValue("application/json", forHTTPHeaderField: "Content-Type")
-			httpBody = data
+			httpBody = body
 		}
 	}
 
