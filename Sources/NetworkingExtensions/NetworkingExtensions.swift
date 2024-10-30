@@ -44,7 +44,7 @@ extension URLRequest {
 		if let body {
 			let data = try encoder.encode(body)
 			setValue(String(data.count), forHTTPHeaderField: "Content-Length")
-			setValue("Application/JSON", forHTTPHeaderField: "Content-Type")
+			setValue("application/json", forHTTPHeaderField: "Content-Type")
 			httpBody = data
 		}
 	}
