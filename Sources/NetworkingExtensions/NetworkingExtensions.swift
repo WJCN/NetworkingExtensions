@@ -15,15 +15,10 @@ extension HTTPURLResponse {
 
 extension URLRequest {
 	public enum HTTPMethod: String {
-		case connect
 		case delete
-		case head
 		case get
-		case options
-		case patch
 		case post
 		case put
-		case trace
 	}
 
 #if true
