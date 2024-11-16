@@ -26,6 +26,7 @@ let package = Package(
 		.target(
 			name: "NetworkingExtensions",
 			swiftSettings: [
+				.enableExperimentalFeature("StrictConcurrency"),
 				.swiftLanguageMode(.v6),
 			]
 		),
