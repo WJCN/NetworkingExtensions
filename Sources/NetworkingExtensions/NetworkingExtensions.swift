@@ -137,6 +137,7 @@ extension URLSession {
 		return (data, httpURLResponse)
 	}
 
+	@available(*, deprecated, message: "Use httpData instead.")
 	public func httpDecode<T: Decodable>(
 		_    type: T.Type,
 		from url:  URL,
@@ -147,6 +148,7 @@ extension URLSession {
 		return (try decoder.decode(type, from: data), response)
 	}
 
+	@available(*, deprecated, message: "Use httpData instead.")
 	public func httpDecode<T: Decodable>(
 		_   type:    T.Type,
 		for request: URLRequest,
