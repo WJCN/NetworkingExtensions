@@ -21,52 +21,31 @@ extension URLRequest {
 		case put
 	}
 
-#if true
 	public init(
 		method:          HTTPMethod,
+		bearerToken:     String?         =  nil,
 		header:         [String: String] = [:],
 		url:             URL,
-		body:            Data?           =  nil,
+		body:            Encodable?      =  nil,
 		encoder:         JSONEncoder     =  JSONEncoder(),
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
 	) throws {
-		self.init(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
-		httpMethod = method.rawValue
-		for (field, value) in header {
-			setValue(value, forHTTPHeaderField: field)
-		}
-		if let body {
-			setValue(String(body.count), forHTTPHeaderField: "Content-Length")
-			setValue("application/json", forHTTPHeaderField: "Content-Type")
-			httpBody = body
-		}
-	}
-
-	public init(
-		method:          HTTPMethod,
-		bearerToken:     String?      =  nil,
-		url:             URL,
-		body:            Encodable?   =  nil,
-		encoder:         JSONEncoder  =  JSONEncoder(),
-		cachePolicy:     CachePolicy  = .useProtocolCachePolicy,
-		timeoutInterval: TimeInterval =  60
-	) throws {
-		var header: [String: String] = [:]
+		var mutableHeader = header
 		if let bearerToken {
-			header.updateValue("Bearer \(bearerToken)", forKey: "Authorization")
+			mutableHeader.updateValue("Bearer \(bearerToken)", forKey: "Authorization")
 		}
 		try self.init(
 			method:          method,
-			header:          header,
+			header:          mutableHeader,
 			url:             url,
 			body:            body != nil ? encoder.encode(body!) : nil,
-			encoder:         encoder,
+			contentType:     body != nil ? "application/json"    : nil,
 			cachePolicy:     cachePolicy,
 			timeoutInterval: timeoutInterval
 		)
 	}
-#else
+
 	public init(
 		method:          HTTPMethod,
 		header:         [String: String] = [:],
@@ -75,43 +54,18 @@ extension URLRequest {
 		contentType:     String?         =  nil,
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
-	) {
+	) throws {
 		self.init(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
 		httpMethod = method.rawValue
 		for (field, value) in header {
 			setValue(value, forHTTPHeaderField: field)
 		}
-		if let body, let contentType {
-			setValue(String(body.count), forHTTPHeaderField: "Content-Length")
-			setValue(contentType,        forHTTPHeaderField: "Content-Type")
-			httpBody = body
+		if let contentType = contentType?.trimmingCharacters(in: .whitespacesAndNewlines),
+		   !contentType.isEmpty {
+			setValue(contentType, forHTTPHeaderField: "Content-Type")
 		}
+		httpBody = body
 	}
-
-	public init(
-		method:          HTTPMethod,
-		bearerToken:     String?      =  nil,
-		url:             URL,
-		body:            Data?        =  nil,
-		contentType:     String?      =  nil,
-		cachePolicy:     CachePolicy  = .useProtocolCachePolicy,
-		timeoutInterval: TimeInterval =  60
-	) {
-		var header: [String: String] = [:]
-		if let bearerToken {
-			header.updateValue("Bearer \(bearerToken)", forKey: "Authorization")
-		}
-		self.init(
-			method:          method,
-			header:          header,
-			url:             url,
-			body:            body,
-			contentType:     contentType,
-			cachePolicy:     cachePolicy,
-			timeoutInterval: timeoutInterval
-		)
-	}
-#endif
 }
 
 // MARK: -
@@ -137,7 +91,7 @@ extension URLSession {
 		return (data, httpURLResponse)
 	}
 
-	@available(*, deprecated, message: "Use httpData instead.")
+	@available(*, deprecated, message: "use httpData(from:delegate:) instead.", renamed: "httpData(from:delegate:)")
 	public func httpDecode<T: Decodable>(
 		_    type: T.Type,
 		from url:  URL,
@@ -148,7 +102,7 @@ extension URLSession {
 		return (try decoder.decode(type, from: data), response)
 	}
 
-	@available(*, deprecated, message: "Use httpData instead.")
+	@available(*, deprecated, message: "use httpData(for:delegate:) instead.", renamed: "httpData(for:delegate:)")
 	public func httpDecode<T: Decodable>(
 		_   type:    T.Type,
 		for request: URLRequest,
