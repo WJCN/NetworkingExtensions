@@ -54,7 +54,7 @@ extension URLRequest {
 		contentType:     String?         =  nil,
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
-	) throws {
+	) {
 		self.init(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
 		httpMethod = method.rawValue
 		for (field, value) in header {
