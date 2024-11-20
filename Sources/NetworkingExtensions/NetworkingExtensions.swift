@@ -14,6 +14,10 @@ extension HTTPURLResponse {
 // MARK: -
 
 extension URLRequest {
+	public enum ContentType: String {
+		case applicationJSON = "application/json"
+	}
+
 	public enum HTTPMethod: String {
 		case delete
 		case get
@@ -39,8 +43,8 @@ extension URLRequest {
 			method:          method,
 			header:          mutableHeader,
 			url:             url,
-			body:            body != nil ? encoder.encode(body!) : nil,
-			contentType:     body != nil ? "application/json"    : nil,
+			body:            body != nil ?  encoder.encode(body!) : nil,
+			contentType:     body != nil ? .applicationJSON       : nil,
 			cachePolicy:     cachePolicy,
 			timeoutInterval: timeoutInterval
 		)
@@ -51,7 +55,7 @@ extension URLRequest {
 		header:         [String: String] = [:],
 		url:             URL,
 		body:            Data?           =  nil,
-		contentType:     String?         =  nil,
+		contentType:     ContentType?    =  nil,
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
 	) {
@@ -60,9 +64,8 @@ extension URLRequest {
 		for (field, value) in header {
 			setValue(value, forHTTPHeaderField: field)
 		}
-		if let contentType = contentType?.trimmingCharacters(in: .whitespacesAndNewlines),
-		   !contentType.isEmpty {
-			setValue(contentType, forHTTPHeaderField: "Content-Type")
+		if let contentType {
+			setValue(contentType.rawValue, forHTTPHeaderField: "Content-Type")
 		}
 		httpBody = body
 	}
