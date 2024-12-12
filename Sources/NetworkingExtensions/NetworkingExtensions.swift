@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 extension HTTPURLResponse {
 	public var isSuccess: Bool { 200 ..< 300 ~= statusCode }
@@ -13,11 +14,13 @@ extension HTTPURLResponse {
 
 // MARK: -
 
-extension URLRequest {
-	public enum ContentType: String {
-		case applicationJSON = "application/json"
-	}
+extension UTType {
+	static var multipartMixed: Self? { Self(mimeType: "multipart/mixed") }
+}
 
+// MARK: -
+
+extension URLRequest {
 	public enum HTTPMethod: String {
 		case delete
 		case get
@@ -44,7 +47,7 @@ extension URLRequest {
 			header:          mutableHeader,
 			url:             url,
 			body:            body != nil ?  encoder.encode(body!) : nil,
-			contentType:     body != nil ? .applicationJSON       : nil,
+			contentType:     body != nil ? .json                  : nil,
 			cachePolicy:     cachePolicy,
 			timeoutInterval: timeoutInterval
 		)
@@ -55,7 +58,7 @@ extension URLRequest {
 		header:         [String: String] = [:],
 		url:             URL,
 		body:            Data?           =  nil,
-		contentType:     ContentType?    =  nil,
+		contentType:     UTType?         =  nil,
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
 	) {
@@ -65,7 +68,7 @@ extension URLRequest {
 			setValue(value, forHTTPHeaderField: field)
 		}
 		if let contentType {
-			setValue(contentType.rawValue, forHTTPHeaderField: "Content-Type")
+			setValue(contentType.preferredMIMEType, forHTTPHeaderField: "Content-Type")
 		}
 		httpBody = body
 	}
@@ -75,22 +78,22 @@ extension URLRequest {
 
 extension URLSession {
 	public func httpData(
-		from url: URL,
-		delegate: URLSessionTaskDelegate? = nil
+		from     url:   URL,
+		delegate:       URLSessionTaskDelegate? = nil,
+		throwing error: URLError                = URLError(.badServerResponse)
 	) async throws -> (Data, HTTPURLResponse) {
 		let (data, urlResponse) = try await data(from: url, delegate: delegate)
-		guard let httpURLResponse = urlResponse as? HTTPURLResponse
-		else { throw URLError(.badServerResponse) }
+		guard let httpURLResponse = urlResponse as? HTTPURLResponse else { throw error }
 		return (data, httpURLResponse)
 	}
 
 	public func httpData(
-		for request: URLRequest,
-		delegate:    URLSessionTaskDelegate? = nil
+		for      request: URLRequest,
+		delegate:         URLSessionTaskDelegate? = nil,
+		throwing error:   URLError                = URLError(.badServerResponse)
 	) async throws -> (Data, HTTPURLResponse) {
 		let (data, urlResponse) = try await data(for: request, delegate: delegate)
-		guard let httpURLResponse = urlResponse as? HTTPURLResponse
-		else { throw URLError(.badServerResponse) }
+		guard let httpURLResponse = urlResponse as? HTTPURLResponse else { throw error }
 		return (data, httpURLResponse)
 	}
 
