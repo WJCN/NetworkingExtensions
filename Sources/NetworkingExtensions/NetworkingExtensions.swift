@@ -6,16 +6,9 @@
 //
 
 import Foundation
-import UniformTypeIdentifiers
 
 extension HTTPURLResponse {
 	public var isSuccess: Bool { 200 ..< 300 ~= statusCode }
-}
-
-// MARK: -
-
-extension UTType {
-	static var multipartMixed: Self? { Self(mimeType: "multipart/mixed") }
 }
 
 // MARK: -
@@ -47,7 +40,7 @@ extension URLRequest {
 			header:          mutableHeader,
 			url:             url,
 			body:            body != nil ?  encoder.encode(body!) : nil,
-			contentType:     body != nil ? .json                  : nil,
+			contentType:     body != nil ? "application/json"     : nil,
 			cachePolicy:     cachePolicy,
 			timeoutInterval: timeoutInterval
 		)
@@ -58,7 +51,7 @@ extension URLRequest {
 		header:         [String: String] = [:],
 		url:             URL,
 		body:            Data?           =  nil,
-		contentType:     UTType?         =  nil,
+		contentType:     String?         =  nil,
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
 	) {
@@ -68,7 +61,7 @@ extension URLRequest {
 			setValue(value, forHTTPHeaderField: field)
 		}
 		if let contentType {
-			setValue(contentType.preferredMIMEType, forHTTPHeaderField: "Content-Type")
+			setValue(contentType, forHTTPHeaderField: "Content-Type")
 		}
 		httpBody = body
 	}
