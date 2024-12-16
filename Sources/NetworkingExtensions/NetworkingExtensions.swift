@@ -23,24 +23,21 @@ extension URLRequest {
 
 	public init(
 		method:          HTTPMethod,
-		bearerToken:     String?         =  nil,
-		header:         [String: String] = [:],
 		url:             URL,
-		body:            Encodable?      =  nil,
+		header:         [String: String] = [:],
+		bearerToken:     String?         =  nil,
 		encoder:         JSONEncoder     =  JSONEncoder(),
+		body:            Encodable?      =  nil,
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
 	) throws {
-		var mutableHeader = header
-		if let bearerToken {
-			mutableHeader.updateValue("Bearer \(bearerToken)", forKey: "Authorization")
-		}
 		try self.init(
 			method:          method,
-			header:          mutableHeader,
 			url:             url,
-			body:            body != nil ?  encoder.encode(body!) : nil,
+			header:          header,
+			bearerToken:     bearerToken,
 			contentType:     body != nil ? "application/json"     : nil,
+			body:            body != nil ?  encoder.encode(body!) : nil,
 			cachePolicy:     cachePolicy,
 			timeoutInterval: timeoutInterval
 		)
@@ -48,10 +45,11 @@ extension URLRequest {
 
 	public init(
 		method:          HTTPMethod,
-		header:         [String: String] = [:],
 		url:             URL,
-		body:            Data?           =  nil,
+		header:         [String: String] = [:],
+		bearerToken:     String?         =  nil,
 		contentType:     String?         =  nil,
+		body:            Data?           =  nil,
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
 	) {
@@ -59,6 +57,9 @@ extension URLRequest {
 		httpMethod = method.rawValue
 		for (field, value) in header {
 			setValue(value, forHTTPHeaderField: field)
+		}
+		if let bearerToken {
+			setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
 		}
 		if let contentType {
 			setValue(contentType, forHTTPHeaderField: "Content-Type")
