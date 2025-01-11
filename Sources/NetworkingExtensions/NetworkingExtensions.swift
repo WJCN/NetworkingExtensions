@@ -14,11 +14,20 @@ extension HTTPURLResponse {
 // MARK: -
 
 extension URLRequest {
-	public enum HTTPMethod: String {
+	public enum HTTPMethod: CustomStringConvertible {
 		case delete
 		case get
 		case post
 		case put
+
+		public var description: String {
+			switch self {
+				case .delete: "DELETE"
+				case .get:    "GET"
+				case .post:   "POST"
+				case .put:    "PUT"
+			}
+		}
 	}
 
 	public init(
@@ -54,7 +63,7 @@ extension URLRequest {
 		timeoutInterval: TimeInterval    =  60
 	) {
 		self.init(url: url, cachePolicy: cachePolicy, timeoutInterval: timeoutInterval)
-		httpMethod = method.rawValue
+		httpMethod = method.description
 		for (field, value) in header {
 			setValue(value, forHTTPHeaderField: field)
 		}
@@ -74,7 +83,7 @@ extension URLSession {
 	public func httpData(
 		from     url:   URL,
 		delegate:       URLSessionTaskDelegate? = nil,
-		throwing error: URLError                = URLError(.badServerResponse)
+		throwing error: Error                   = URLError(.badServerResponse)
 	) async throws -> (Data, HTTPURLResponse) {
 		let (data, urlResponse) = try await data(from: url, delegate: delegate)
 		guard let httpURLResponse = urlResponse as? HTTPURLResponse else { throw error }
@@ -84,7 +93,7 @@ extension URLSession {
 	public func httpData(
 		for      request: URLRequest,
 		delegate:         URLSessionTaskDelegate? = nil,
-		throwing error:   URLError                = URLError(.badServerResponse)
+		throwing error:   Error                   = URLError(.badServerResponse)
 	) async throws -> (Data, HTTPURLResponse) {
 		let (data, urlResponse) = try await data(for: request, delegate: delegate)
 		guard let httpURLResponse = urlResponse as? HTTPURLResponse else { throw error }
