@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import HTTPTypes
 
 extension HTTPURLResponse {
 	public var isSuccess: Bool { 200 ..< 300 ~= statusCode }
@@ -14,24 +15,8 @@ extension HTTPURLResponse {
 // MARK: -
 
 extension URLRequest {
-	public enum HTTPMethod: CustomStringConvertible {
-		case delete
-		case get
-		case post
-		case put
-
-		public var description: String {
-			switch self {
-				case .delete: "DELETE"
-				case .get:    "GET"
-				case .post:   "POST"
-				case .put:    "PUT"
-			}
-		}
-	}
-
 	public init(
-		method:          HTTPMethod,
+		method:          HTTPRequest.Method,
 		url:             URL,
 		header:         [String: String] = [:],
 		bearerToken:     String?         =  nil,
@@ -53,7 +38,7 @@ extension URLRequest {
 	}
 
 	public init(
-		method:          HTTPMethod,
+		method:          HTTPRequest.Method,
 		url:             URL,
 		header:         [String: String] = [:],
 		bearerToken:     String?         =  nil,
@@ -67,14 +52,17 @@ extension URLRequest {
 		for (field, value) in header {
 			setValue(value, forHTTPHeaderField: field)
 		}
-		if let bearerToken {
-			setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+		if let bearerToken, !bearerToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+			setValue("Bearer \(bearerToken)", forHTTPHeaderField: Self.authorization)
 		}
-		if let contentType {
-			setValue(contentType, forHTTPHeaderField: "Content-Type")
+		if let contentType, !contentType.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+			setValue(contentType, forHTTPHeaderField: Self.contentType)
 		}
 		httpBody = body
 	}
+
+	private static var authorization: String { HTTPField.Name.authorization.description }
+	private static var contentType:   String { HTTPField.Name.contentType  .description }
 }
 
 // MARK: -
