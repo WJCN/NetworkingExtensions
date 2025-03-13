@@ -10,6 +10,10 @@ import HTTPTypes
 
 extension HTTPURLResponse {
 	public var isSuccess: Bool { 200 ..< 300 ~= statusCode }
+
+	public var localizedString: String {
+		Self.localizedString(forStatusCode: statusCode)
+	}
 }
 
 // MARK: -
