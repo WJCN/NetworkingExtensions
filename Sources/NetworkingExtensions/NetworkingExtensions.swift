@@ -8,6 +8,14 @@
 import Foundation
 import HTTPTypes
 
+extension URLError {
+	public init(_ statusCode: Int, userInfo: [String: Any] = [:]) {
+		self.init(Code(rawValue: statusCode), userInfo: userInfo)
+	}
+}
+
+// MARK: -
+
 extension HTTPURLResponse {
 	public var isSuccess: Bool { 200 ..< 300 ~= statusCode }
 
@@ -19,6 +27,8 @@ extension HTTPURLResponse {
 // MARK: -
 
 extension URLRequest {
+	// MARK: Functions
+
 	public init(
 		method:          HTTPRequest.Method,
 		url:             URL,
@@ -65,6 +75,8 @@ extension URLRequest {
 		httpBody = body
 	}
 
+	// MARK: - Private Computed Properties
+
 	private static var authorization: String { HTTPField.Name.authorization.description }
 	private static var contentType:   String { HTTPField.Name.contentType  .description }
 }
@@ -72,6 +84,8 @@ extension URLRequest {
 // MARK: -
 
 extension URLSession {
+	// MARK: Functions
+
 	public func httpData(
 		from     url:   URL,
 		delegate:       URLSessionTaskDelegate? = nil,
@@ -91,6 +105,8 @@ extension URLSession {
 		guard let httpURLResponse = urlResponse as? HTTPURLResponse else { throw error }
 		return (data, httpURLResponse)
 	}
+
+	// MARK: - Deprecated Functions
 
 	@available(*, deprecated, message: "use httpData(from:delegate:) instead.", renamed: "httpData(from:delegate:)")
 	public func httpDecode<T: Decodable>(
