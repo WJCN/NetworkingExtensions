@@ -32,8 +32,7 @@ let package = Package(
 				.product(name: "HTTPTypes", package: "swift-http-types")
 			],
 			swiftSettings: [
-				.enableExperimentalFeature("StrictConcurrency=complete"),
-				.swiftLanguageMode(.v6),
+				.enableUpcomingFeature("ExistentialAny"),
 			]
 		),
 	]
