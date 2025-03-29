@@ -35,7 +35,7 @@ extension URLRequest {
 		header:         [String: String] = [:],
 		bearerToken:     String?         =  nil,
 		encoder:         JSONEncoder     =  JSONEncoder(),
-		body:            Encodable?      =  nil,
+		body:           (any Encodable)? =  nil,
 		cachePolicy:     CachePolicy     = .useProtocolCachePolicy,
 		timeoutInterval: TimeInterval    =  60
 	) throws {
@@ -88,8 +88,8 @@ extension URLSession {
 
 	public func httpData(
 		from     url:   URL,
-		delegate:       URLSessionTaskDelegate? = nil,
-		throwing error: Error                   = URLError(.badServerResponse)
+		delegate:      (any URLSessionTaskDelegate)? = nil,
+		throwing error: any Error                    = URLError(.badServerResponse)
 	) async throws -> (Data, HTTPURLResponse) {
 		let (data, urlResponse) = try await data(from: url, delegate: delegate)
 		guard let httpURLResponse = urlResponse as? HTTPURLResponse else { throw error }
@@ -98,8 +98,8 @@ extension URLSession {
 
 	public func httpData(
 		for      request: URLRequest,
-		delegate:         URLSessionTaskDelegate? = nil,
-		throwing error:   Error                   = URLError(.badServerResponse)
+		delegate:        (any URLSessionTaskDelegate)? = nil,
+		throwing error:   any Error                    = URLError(.badServerResponse)
 	) async throws -> (Data, HTTPURLResponse) {
 		let (data, urlResponse) = try await data(for: request, delegate: delegate)
 		guard let httpURLResponse = urlResponse as? HTTPURLResponse else { throw error }
@@ -112,8 +112,8 @@ extension URLSession {
 	public func httpDecode<T: Decodable>(
 		_    type: T.Type,
 		from url:  URL,
-		decoder:   JSONDecoder             = JSONDecoder(),
-		delegate:  URLSessionTaskDelegate? = nil
+		decoder:   JSONDecoder                  = JSONDecoder(),
+		delegate: (any URLSessionTaskDelegate)? = nil
 	) async throws -> (T, HTTPURLResponse) {
 		let (data, response) = try await httpData(from: url, delegate: delegate)
 		return (try decoder.decode(type, from: data), response)
@@ -123,8 +123,8 @@ extension URLSession {
 	public func httpDecode<T: Decodable>(
 		_   type:    T.Type,
 		for request: URLRequest,
-		decoder:     JSONDecoder             = JSONDecoder(),
-		delegate:    URLSessionTaskDelegate? = nil
+		decoder:     JSONDecoder                  = JSONDecoder(),
+		delegate:   (any URLSessionTaskDelegate)? = nil
 	) async throws -> (T, HTTPURLResponse) {
 		let (data, response) = try await httpData(for: request, delegate: delegate)
 		return (try decoder.decode(type, from: data), response)
